@@ -15,4 +15,7 @@
   .layout {
     @apply h-dvh w-screen overflow-hidden bg-slate-900 text-white;
   }
+  .page-container {
+    @apply flex h-auto w-screen flex-1 flex-col items-start justify-start
+  }
 }

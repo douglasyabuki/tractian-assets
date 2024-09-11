@@ -1,25 +1,30 @@
-import { useState } from 'react'
-import './App.css'
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import "./App.css";
+import { RootErrorBoundary } from "./layout/root-error-boundary/RootErrorBoundary";
+import { RootLayout } from "./layout/root-layout/RootLayout";
+import { HomePage } from "./pages/Home";
+
+const router = createBrowserRouter([
+  {
+    id: "root",
+    path: "/",
+    Component: RootLayout,
+    errorElement: <RootErrorBoundary />,
+    children:[
+      {
+        index: true,
+        Component: HomePage
+      }
+    ]
+  },
+]);
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <RouterProvider router={router} />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
