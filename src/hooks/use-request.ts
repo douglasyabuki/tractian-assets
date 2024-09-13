@@ -1,90 +1,99 @@
-import { formatParams } from "@/utils/util-fetch";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-export const useRequest = <
-  TParams extends Record<string, unknown> = Record<string, unknown>,
-  TBody = unknown,
-  TData = unknown,
-  TError = unknown,
->(
-  method: "GET" | "POST" | "PUT" | "DELETE",
-  path: string,
-  options?: {
-    onSuccess?: (data: TData) => void;
-    onError?: (error: TError) => void;
-    plainText?: boolean;
-  },
-) => {
-  const [loading, setLoading] = useState(false);
+interface RequestOptions<TBody, TParams, TData, TError> {
+  method: "GET" | "POST" | "PUT" | "DELETE";
+  body?: TBody;
+  params?: TParams;
+  headers?: Record<string, string>;
+  onSuccess?: (data: TData) => void; 
+  onError?: (error: TError) => void; 
+}
+
+interface UseRequestReturn<TData, TError, TBody, TParams> {
+  data: TData | null;
+  error: TError | null;
+  loading: boolean;
+  sendRequest: (url: string, options?: RequestOptions<TBody, TParams, TData, TError>) => void;
+  abortRequest: () => void;
+}
+
+const formatParams = (params: Record<string, any> | undefined): string => {
+  if (!params) return "";
+  return (
+    "?" +
+    Object.entries(params)
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+      .join("&")
+  );
+};
+
+export const useRequest = <TData = unknown, TError = unknown, TBody = unknown, TParams = unknown>(): UseRequestReturn<TData, TError, TBody, TParams> => {
   const [data, setData] = useState<TData | null>(null);
   const [error, setError] = useState<TError | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  useEffect(() => {
-    return () => {
-      abortControllerRef?.current?.abort();
-    };
-  }, []);
-
-  const makeRequest = (
-    body?: TBody,
-    params?: TParams,
-    onSuccess?: (res: TData) => void,
-    onError?: (err: TError) => void,
-  ) => {
-    setLoading(true);
+  const sendRequest = useCallback((url: string, options?: RequestOptions<TBody, TParams, TData, TError>) => {
     setData(null);
     setError(null);
+    setLoading(true);
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
     const abortController = new AbortController();
     abortControllerRef.current = abortController;
-    const formattedParams = formatParams(params);
+    const queryString = formatParams(options?.params);
 
-    fetch(path + (formattedParams ? `?${formattedParams}` : ""), {
-      body: Object.keys(body || {}).length ? JSON.stringify(body) : undefined,
-      headers: { "Content-Type": "application/json" },
-      cache: "no-cache",
-      method,
-    })
-      .then((res) => (options?.plainText ? res.text() : res.json()))
-      .then((data: TData) => {
-        setData(data);
-        options?.onSuccess?.(data);
-        onSuccess?.(data);
+    const fetchOptions: RequestInit = {
+      method: options?.method || "GET",
+      headers: {
+        "Content-Type": "application/json",
+        ...(options?.headers || {}),
+      },
+      signal: abortController.signal,
+    };
+    if (options?.body) {
+      fetchOptions.body = JSON.stringify(options.body);
+    }
+    fetch(url + queryString, fetchOptions)
+      .then((response) => {
+        if (!response.ok) {
+          return response.json().then((errorData) => {
+            throw errorData;
+          });
+        }
+        return response.json();
+      })
+      .then((responseData: TData) => {
+        setData(responseData);
+        options?.onSuccess?.(responseData);
       })
       .catch((err: TError) => {
         if (abortController.signal.aborted) {
-          console.log("request aborted");
-          return;
+          console.log("Request aborted");
+        } else {
+          setError(err);
+          options?.onError?.(err);
         }
-        setData(null);
-        setError(err);
-        options?.onError?.(err);
-        onError?.(err);
       })
       .finally(() => {
         setLoading(false);
       });
-  };
+  }, []);
 
-  const sendRequest = ({
-    body,
-    params,
-    onSuccess,
-    onError,
-  }: {
-    body?: TBody;
-    params?: TParams;
-    onSuccess?: (res: TData) => void;
-    onError?: (err: TError) => void;
-  } = {}) => makeRequest(body, params, onSuccess, onError);
+  const abortRequest = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+  }, []);
 
-  return {
-    data,
-    loading,
-    sendRequest,
-    error,
-  };
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
+
+  return { data, error, loading, sendRequest, abortRequest };
 };
