@@ -1,7 +1,6 @@
-import { useOnMount } from "@/hooks/use-on-mount";
-import { usePromise } from "@/hooks/use-promise";
-import { Company, fetchCompanies } from "@/services/company";
-import React, { createContext, useEffect, useMemo, useRef, useState } from "react";
+import { useRequest } from "@/hooks/use-request";
+import { Company } from "@/services/company";
+import React, { createContext, useEffect, useState } from "react";
 
 interface CompanyContextProps {
   selectedCompany: Company | null;
@@ -13,31 +12,25 @@ export const CompanyContext = createContext<CompanyContextProps | undefined>(und
 
 export const CompanyProvider = ({ children }: { children: React.ReactNode }) => {
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
-  const { data, run } = usePromise<Company[], Error>(fetchCompanies);
-  const isMountedRef = useRef<boolean>(false);
+  const { data: companies, sendRequest: getCompanies } = useRequest<Company[], Error>();
 
   const onCompanySelect = (company: Company) => {
     setSelectedCompany(company);
   };
 
   useEffect(() => {
-    isMountedRef.current = true;
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, []);
-
-  useOnMount(() => run({ onSuccess: (res) => setSelectedCompany(res?.[0]) }));
-
-  useEffect(() => {
-    if (data && data.length > 0) {
-      setSelectedCompany(data[0]);
-    }
-  }, [data]);
-
-  const companies = useMemo(() => {
-    return data ? data : [];
-  }, [data]);
+    getCompanies(`/api/companies`, {
+      method: "GET",
+      onSuccess: (companies) => {
+        if (companies?.length > 0) {
+          setSelectedCompany(companies[0])
+        }
+      },
+      onError: (err) => {
+        console.error("Error fetching locations:", err);
+      },
+    });
+  }, [getCompanies]);
 
   return (
     <CompanyContext.Provider
