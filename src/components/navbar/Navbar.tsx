@@ -1,16 +1,11 @@
+import { CompanyContext } from "@/contexts/CompanyContext";
 import { Icons } from "@/icons/Icons";
-import { Company } from "@/services/company";
+import { useContext } from "react";
+import { twMerge } from "tailwind-merge";
 
-interface NavbarProps {
-  companies: Company[];
-  selectedCompany: Company | null;
-  onCompanySelect: (company: Company) => void;
-}
-export const Navbar = ({
-  companies,
-  // selectedCompany,
-  onCompanySelect,
-}: NavbarProps) => {
+export const Navbar = () => {
+  const { companies, selectedCompany, onCompanySelect } = useContext(CompanyContext);
+
   return (
     <div className="box-border flex h-14 w-screen items-center justify-between bg-slate-800 px-4 py-3 text-sm sm:px-6 md:px-8">
       <Icons.LOGO />
@@ -21,7 +16,8 @@ export const Navbar = ({
             .map((company) => (
               <button
                 id={company.id}
-                className="flex items-center justify-center gap-2 bg-slate-900 px-4 py-2"
+                key={company.id}
+                className={twMerge("flex items-center justify-center gap-2 bg-slate-900 px-4 py-2", selectedCompany?.id === company.id && 'bg-slate-600')}
                 onClick={() => onCompanySelect(company)}
               >
                 <Icons.UNIT />
