@@ -1,9 +1,15 @@
+import { Navbar } from "@/components/navbar/Navbar";
+import { CompanyProvider } from "@/contexts/CompanyContext";
 import { Outlet } from "react-router-dom";
 
 export const RootLayout = () => {
+
   return (
-    <section className="layout">
-      <Outlet />
-    </section>
+    <CompanyProvider>
+      <section className="layout">
+        <Navbar />
+        <Outlet />
+      </section>
+    </CompanyProvider>
   );
 };
