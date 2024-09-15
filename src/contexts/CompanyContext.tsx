@@ -1,21 +1,45 @@
 import { useRequest } from "@/hooks/use-request";
-import { Company } from "@/services/company";
+import { IAsset, ICompany } from "@/interfaces/interfaces";
 import React, { createContext, useEffect, useState } from "react";
 
 interface CompanyContextProps {
-  selectedCompany: Company | null;
-  companies: Company[];
-  onCompanySelect: (company: Company) => void;
+  companies: ICompany[];
+  onCompanySelect: (company: ICompany) => void;
+  onComponentSelect: (component: IAsset) => void;
+  selectedCompany: ICompany | null;
+  selectedComponent: IAsset | null;
 }
 
-export const CompanyContext = createContext<CompanyContextProps | undefined>(undefined);
+export const CompanyContext = createContext<CompanyContextProps>({
+  companies: [],
+  onCompanySelect: () => { },
+  onComponentSelect: () => { },
+  selectedCompany: null,
+  selectedComponent: null,
+});
 
-export const CompanyProvider = ({ children }: { children: React.ReactNode }) => {
-  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
-  const { data: companies, sendRequest: getCompanies } = useRequest<Company[], Error>();
+export const CompanyProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  const [selectedCompany, setSelectedCompany] = useState<ICompany | null>(null);
+  const [selectedComponent, setSelectedComponent] = useState<IAsset | null>(
+    null,
+  );
 
-  const onCompanySelect = (company: Company) => {
+  const { data: companies = [], sendRequest: getCompanies } = useRequest<
+    ICompany[],
+    Error
+  >();
+
+  const onCompanySelect = (company: ICompany) => {
+    setSelectedComponent(null);
     setSelectedCompany(company);
+  };
+
+  const onComponentSelect = (component: IAsset) => {
+    setSelectedComponent(component);
   };
 
   useEffect(() => {
@@ -23,7 +47,7 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
       method: "GET",
       onSuccess: (companies) => {
         if (companies?.length > 0) {
-          setSelectedCompany(companies[0])
+          setSelectedCompany(companies[0]);
         }
       },
       onError: (err) => {
@@ -34,7 +58,14 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
 
   return (
     <CompanyContext.Provider
-      value={{ selectedCompany, companies, onCompanySelect }}>
+      value={{
+        selectedCompany,
+        companies: companies ? companies : [],
+        onCompanySelect,
+        selectedComponent,
+        onComponentSelect,
+      }}
+    >
       {children}
     </CompanyContext.Provider>
   );
