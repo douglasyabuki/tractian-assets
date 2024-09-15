@@ -13,9 +13,9 @@
 
 @layer components {
   .layout {
-    @apply h-dvh w-screen overflow-hidden bg-slate-900 text-white;
+    @apply flex h-dvh max-h-dvh min-h-dvh w-screen flex-col overflow-hidden bg-slate-900 text-white;
   }
   .page-container {
-    @apply flex h-auto w-screen flex-1 flex-col items-start justify-start
+    @apply flex h-auto w-screen flex-1 flex-col items-start justify-start;
   }
 }
