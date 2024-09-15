@@ -5,7 +5,7 @@ interface DataFieldProps {
   className?: string;
   label: string;
   Icon?: React.ReactNode;
-  value: string;
+  value?: string;
 }
 
 export const DataField = ({

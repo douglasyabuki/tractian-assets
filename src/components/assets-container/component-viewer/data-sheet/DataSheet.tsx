@@ -1,5 +1,5 @@
 import { Icons } from "@/icons/Icons";
-import { IAsset } from "@/services/company";
+import { IAsset } from "@/interfaces/interfaces";
 import { DataField } from "./data-field/DataField";
 import { ImageField } from "./image-field/ImageField";
 
