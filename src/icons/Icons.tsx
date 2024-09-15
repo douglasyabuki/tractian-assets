@@ -6,7 +6,11 @@ interface IconProps {
 
 export const Icons = {
   ARROW_DOWN: ({ className }: IconProps) => (
-    <svg viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg" className={twMerge("fill-current h-[0.625rem] w-[0.625rem]", className)}>
+    <svg
+      viewBox="0 0 10 10"
+      xmlns="http://www.w3.org/2000/svg"
+      className={twMerge("h-[0.625rem] w-[0.625rem] fill-current", className)}
+    >
       <path d="M9.15167 2.14294H8.31461C8.25769 2.14294 8.20412 2.17085 8.17064 2.21661L4.99988 6.58714L1.82912 2.21661C1.79564 2.17085 1.74207 2.14294 1.68515 2.14294H0.848094C0.775549 2.14294 0.733139 2.22553 0.775549 2.28469L4.71082 7.70991C4.85367 7.90634 5.14608 7.90634 5.28783 7.70991L9.22309 2.28469C9.26662 2.22553 9.22421 2.14294 9.15167 2.14294Z" />
     </svg>
   ),
@@ -23,7 +27,7 @@ export const Icons = {
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 20 20"
-      className={twMerge("w-[1.25rem] h-[1.25rem] fill-none", className)}
+      className={twMerge("h-[1.25rem] w-[1.25rem] fill-none", className)}
     >
       <path d="M0 0H20V20H0z" className="fill-[#1E1E1E]"></path>
       <path
@@ -160,17 +164,24 @@ export const Icons = {
     </svg>
   ),
   TEAM_ELECTRICAL: ({ className }: IconProps) => (
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className={twMerge("size-6 fill-current stroke-white", className)}>
+    <svg
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+      className={twMerge("size-6 fill-current stroke-white", className)}
+    >
       <circle cx="12" cy="12" r="11.75" strokeWidth={0.5} />
       <path d="M9.04936 17V6.81818H15.1942V7.91193H10.2823V11.3523H14.8761V12.446H10.2823V15.9062H15.2738V17H9.04936Z" />
     </svg>
   ),
   TEAM_MECHANICHAL: ({ className }: IconProps) => (
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className={twMerge("size-6 fill-current stroke-white", className)}>
+    <svg
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+      className={twMerge("size-6 fill-current stroke-white", className)}
+    >
       <circle cx="12" cy="12" r="11.75" strokeWidth={0.5} />
       <path d="M7.00542 6.81818H8.47701L11.9372 15.2699H12.0566L15.5168 6.81818H16.9884V17H15.835V9.2642H15.7355L12.5537 17H11.4401L8.25826 9.2642H8.15882V17H7.00542V6.81818Z" />
     </svg>
-
   ),
   UNIT: ({ className }: IconProps) => (
     <svg

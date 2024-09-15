@@ -12,8 +12,8 @@ interface CompanyContextProps {
 
 export const CompanyContext = createContext<CompanyContextProps>({
   companies: [],
-  onCompanySelect: () => { },
-  onComponentSelect: () => { },
+  onCompanySelect: () => {},
+  onComponentSelect: () => {},
   selectedCompany: null,
   selectedComponent: null,
 });

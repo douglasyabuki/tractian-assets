@@ -2,10 +2,10 @@ import { CompanyContext } from "@/contexts/CompanyContext";
 import { useRequest } from "@/hooks/use-request";
 import { Icons } from "@/icons/Icons";
 import {
-    FilterOptionsType,
-    IAsset,
-    ICompany,
-    ILocation,
+  FilterOptionsType,
+  IAsset,
+  ICompany,
+  ILocation,
 } from "@/interfaces/interfaces";
 import { useContext, useEffect, useState } from "react";
 import { ToggleButton } from "../ui/buttons/toggle-button/ToggleButton";

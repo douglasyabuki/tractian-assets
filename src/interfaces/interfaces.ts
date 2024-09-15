@@ -17,7 +17,6 @@ export interface ILocation {
   parentId?: string | null;
 }
 
-
 export interface IAsset {
   id: string;
   name: string;

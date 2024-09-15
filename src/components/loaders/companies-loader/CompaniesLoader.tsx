@@ -1,7 +1,7 @@
 export const CompaniesLoader = () => {
-    return (
-      <div>
-          <>...loading</>
-      </div>
-    );
-  }
+  return (
+    <div>
+      <>...loading</>
+    </div>
+  );
+};

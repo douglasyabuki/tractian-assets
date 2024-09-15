@@ -12,7 +12,6 @@ type UseEventListeners<T extends keyof WindowEventMap> = {
 export const useEventListeners = <T extends keyof WindowEventMap>({
   eventListeners,
 }: UseEventListeners<T>) => {
-
   useEffect(() => {
     eventListeners.forEach(({ eventName, handler }) => {
       window.addEventListener(eventName, handler);

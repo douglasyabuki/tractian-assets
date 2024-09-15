@@ -13,16 +13,16 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        Component: HomePage
-      }
-    ]
+        Component: HomePage,
+      },
+    ],
   },
 ]);
 
 function App() {
   return (
     <>
-        <RouterProvider router={router} />
+      <RouterProvider router={router} />
     </>
   );
 }

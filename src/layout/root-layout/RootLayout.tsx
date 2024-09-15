@@ -3,7 +3,6 @@ import { CompanyProvider } from "@/contexts/CompanyContext";
 import { Outlet } from "react-router-dom";
 
 export const RootLayout = () => {
-
   return (
     <CompanyProvider>
       <section className="layout">
