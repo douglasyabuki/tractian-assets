@@ -21,7 +21,7 @@ export const AssetsContainer = ({ selectedCompany }: AssetsContainer) => {
     sensorEnergy: false,
     statusAlert: false,
   });
-  const { selectedComponent, onComponentSelect } = useContext(CompanyContext);
+  const { selectedComponent } = useContext(CompanyContext);
   const { data: locations, sendRequest: getLocations } = useRequest<
     ILocation[],
     Error
@@ -90,9 +90,8 @@ export const AssetsContainer = ({ selectedCompany }: AssetsContainer) => {
       </div>
       <div className="grid h-[100%] w-full grid-cols-[30rem_auto] gap-2">
         <SearchableViewTree
-          assets={assets}
-          locations={locations}
-          onComponentSelect={onComponentSelect}
+          assets={assets || []}
+          locations={locations || []}
           filters={filters}
         />
         <ComponentViewer component={selectedComponent} />

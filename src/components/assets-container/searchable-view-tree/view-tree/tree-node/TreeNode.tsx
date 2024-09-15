@@ -1,36 +1,82 @@
-interface TreeNode {
-  id: string;
-  name: string;
-  components?: TreeNode[];
-  assets?: TreeNode[];
-  locations?: TreeNode[];
+import { DropdownButton } from "@/components/ui/buttons/dropdown-button/DropdownButton";
+import { Icons } from "@/icons/Icons";
+import { IAsset, ILocation, TreeNodeType } from "@/interfaces/interfaces";
+import { useMemo, useState } from "react";
+import { Component } from "../component/Component";
+
+interface TreeNodeProps {
+  node: ILocation | IAsset;
+  nodeType: TreeNodeType;
 }
 
-interface TreeNodeProps {}
-
-const searchTree = (nodes: TreeNode[], searchTerm: string): TreeNode[] => {
-  const result: TreeNode[] = [];
-
-  const traverse = (node: TreeNode, parents: TreeNode[] = []) => {
-    if (node.name.toLowerCase().includes(searchTerm.toLowerCase())) {
-      result.push(...parents, node);
-    }
-    if (node.components) {
-      node.components.forEach((child) => traverse(child, [...parents, node]));
-    }
-    if (node.assets) {
-      node.assets.forEach((child) => traverse(child, [...parents, node]));
-    }
-    if (node.locations) {
-      node.locations.forEach((child) => traverse(child, [...parents, node]));
-    }
-  };
-
-  nodes.forEach((node) => traverse(node));
-
-  return result;
+const NODE_ICON_DICTIONARY: Record<TreeNodeType, React.ReactNode> = {
+  location: <Icons.LOCATION />,
+  asset: <Icons.ASSET />,
+  component: <Icons.COMPONENT />,
 };
 
-export const TreeNode = ({}: TreeNodeProps) => {
-  return <div></div>;
+export const TreeNode = ({ node, nodeType }: TreeNodeProps) => {
+  const isToggleable = useMemo(() => {
+    return (
+      ((node as ILocation)?.locations?.length ?? 0) > 0 ||
+      ((node as IAsset | ILocation)?.assets?.length ?? 0) > 0 ||
+      ((node as IAsset | ILocation)?.components?.length ?? 0) > 0
+    );
+  }, [node]);
+  const [isToggled, setIsToggled] = useState(false);
+
+  return (
+    <div className="flex w-full cursor-default flex-col items-start justify-start gap-1 space-x-[0.525rem] border-l-white/5 pl-3 pt-[1.125rem]">
+      {nodeType === "component" ? (
+        <Component {...node} />
+      ) : (
+        <>
+          <div
+            className="flex h-7 w-full items-center justify-start gap-2 text-sm uppercase"
+            onClick={() => {
+              if (!isToggled && isToggleable) setIsToggled(true);
+            }}
+          >
+            {isToggleable && (
+              <DropdownButton
+                isToggled={isToggled}
+                onToggle={() => setIsToggled(!isToggled)}
+              />
+            )}
+            {NODE_ICON_DICTIONARY[nodeType]}
+            {node.name}
+          </div>
+
+          {isToggleable && isToggled && (
+            <div className="box-border flex flex-col border-l-[1px] border-l-white/5 pl-3">
+              {((node as ILocation)?.locations?.length ?? 0) > 0 &&
+                (node as ILocation).locations?.map((location) => (
+                  <TreeNode
+                    key={location.id}
+                    node={location}
+                    nodeType="location"
+                  />
+                ))}
+
+              {node.assets &&
+                node.assets.length > 0 &&
+                node.assets.map((asset) => (
+                  <TreeNode key={asset.id} node={asset} nodeType="asset" />
+                ))}
+
+              {node.components &&
+                node.components.length > 0 &&
+                node.components.map((component) => (
+                  <TreeNode
+                    key={component.id}
+                    node={component}
+                    nodeType="component"
+                  />
+                ))}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
 };
