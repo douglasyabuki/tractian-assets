@@ -10,7 +10,7 @@ const router = createBrowserRouter([
     path: "/",
     Component: RootLayout,
     errorElement: <RootErrorBoundary />,
-    children:[
+    children: [
       {
         index: true,
         Component: HomePage
@@ -22,7 +22,7 @@ const router = createBrowserRouter([
 function App() {
   return (
     <>
-      <RouterProvider router={router} />
+        <RouterProvider router={router} />
     </>
   );
 }
