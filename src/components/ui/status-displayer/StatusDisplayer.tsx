@@ -1,6 +1,6 @@
 import { useEventListeners } from "@/hooks/use-event-listeners";
 import { useTargetRect } from "@/hooks/use-target-rect";
-import { SensorType, Status } from "@/services/company";
+import { SensorType, StatusType } from "@/interfaces/interfaces";
 import { twMerge } from "tailwind-merge";
 import { Tooltip } from "../tooltip/Tooltip";
 import { ElectricalStatusDisplayer } from "./electrical-status-displayer/ElectricalStatusDisplayer";
@@ -10,22 +10,10 @@ type SizeVariants = "small" | "medium" | "large";
 
 interface StatusDisplayerProps {
   className?: string;
-  status?: Status;
+  status?: StatusType;
   size?: SizeVariants;
   sensorType?: SensorType;
 }
-
-const STATUS_COLOR_DICTIONARY: Record<Status | string, string> = {
-  operating: "bg-green-600 text-green-600",
-  alert: "bg-red-600 text-red-600",
-  "": "bg-gray-600 text-gray-600",
-};
-
-const SIZE_STYLE_DICTIONARY: Record<SizeVariants, string> = {
-  small: "size-2",
-  medium: "size-3",
-  large: "size-4",
-};
 
 const CLOSE_KEYS = ["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Escape"];
 
@@ -57,21 +45,9 @@ export const StatusDisplayer = ({
         ref={componentRef}
       >
         {sensorType === "energy" ? (
-          <ElectricalStatusDisplayer
-            className={twMerge(
-              SIZE_STYLE_DICTIONARY[size],
-              STATUS_COLOR_DICTIONARY[status],
-              className,
-            )}
-          />
+          <ElectricalStatusDisplayer className={twMerge(className)} status={status} size={size}/>
         ) : (
-          <MechanicalStatusDisplayer
-            className={twMerge(
-              SIZE_STYLE_DICTIONARY[size],
-              STATUS_COLOR_DICTIONARY[status],
-              className,
-            )}
-          />
+          <MechanicalStatusDisplayer className={twMerge(className)} status={status} size={size}/>
         )}
       </div>
       {targetRect && (
