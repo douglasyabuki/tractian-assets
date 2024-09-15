@@ -1,6 +1,10 @@
 export type SensorType = "energy" | "vibration";
 export type StatusType = "operating" | "alert";
 export type TreeNodeType = "location" | "asset" | "component";
+export type FilterOptionsType = {
+  statusAlert: boolean;
+  sensorEnergy: boolean;
+};
 
 export interface ICompany {
   id: string;
@@ -24,6 +28,7 @@ export interface IAsset {
   status?: StatusType;
   gatewayId?: string;
   assets?: IAsset[];
+  components?: IAsset[];
 }
 
 export interface ITreeNode {

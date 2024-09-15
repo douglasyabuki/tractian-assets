@@ -42,7 +42,7 @@ export const useRequest = <TData = unknown, TError = unknown, TBody = unknown, T
     }
     const abortController = new AbortController();
     abortControllerRef.current = abortController;
-    const queryString = formatParams(options?.params);
+    const queryString = formatParams(options?.params ? options.params : {});
 
     const fetchOptions: RequestInit = {
       method: options?.method || "GET",
