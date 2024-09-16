@@ -4,6 +4,7 @@ import {
   filterComponentsByText,
   filterComponentsByTypeAndStatus,
   filterMappedLocations,
+  filterMappedLocationsByText,
   mapLocations,
 } from "@/utils/util-tree";
 import { useMemo, useState } from "react";
@@ -59,10 +60,12 @@ export const SearchableViewTree = ({
   );
 
   const filteredMappedLocations = useMemo(() => {
-    return filters.sensorEnergy || filters.statusAlert
-      ? filterMappedLocations(mappedLocations, filters, debouncedText)
-      : mappedLocations;
-  }, [mappedLocations, filters, debouncedText]);
+    return filterMappedLocations(mappedLocations, filters);
+  }, [mappedLocations, filters]);
+
+  const matchingFilteredMappedLocations = useMemo(() => {
+    return filterMappedLocationsByText(filteredMappedLocations, debouncedText);
+  }, [filteredMappedLocations, debouncedText]);
 
   const filteredUnlinkedAssets = useMemo(() => {
     return filters.sensorEnergy || filters.statusAlert ? [] : unlinkedAssets;
@@ -82,7 +85,7 @@ export const SearchableViewTree = ({
   );
 
   return (
-    <aside className="h-full md:h-auto box-border flex w-full md:w-[30rem] flex-col divide-y-[1px] divide-slate-600 border-[1.5px] border-slate-600 bg-slate-800/90">
+    <aside className="box-border flex h-full w-full flex-col divide-y-[1px] divide-slate-600 border-[1.5px] border-slate-600 bg-slate-800/90 md:h-auto md:w-[30rem]">
       <SearchBar
         value={text}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -92,7 +95,7 @@ export const SearchableViewTree = ({
         placeholder="Buscar ativo ou local"
       />
       <ViewTree
-        locations={filteredMappedLocations}
+        locations={matchingFilteredMappedLocations}
         unlinkedAssets={filteredUnlinkedAssetsByText}
         unlinkedComponents={filteredUnlinkedComponentsByText}
       />

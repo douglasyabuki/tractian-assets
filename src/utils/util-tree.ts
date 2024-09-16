@@ -216,11 +216,12 @@ export const mapLocations = (
 export const filterMappedLocations = (
   mappedLocations: ILocation[],
   filters: FilterOptionsType,
-  text: string,
 ): ILocation[] => {
+  if (!filters.sensorEnergy && !filters.sensorEnergy) {
+    return mappedLocations;
+  }
   const sensorEnergy = filters.sensorEnergy ? "energy" : "";
   const statusAlert = filters.statusAlert ? "alert" : "";
-  const normalizedText = text.toLowerCase();
 
   const filterLocations = (locations: ILocation[]): ILocation[] => {
     return locations
@@ -228,7 +229,6 @@ export const filterMappedLocations = (
         const filteredAssets =
           location.assets?.filter(
             (asset: IAsset) =>
-              asset.searchKey?.toLowerCase().includes(normalizedText) &&
               asset.searchKey?.toLowerCase().includes(sensorEnergy) &&
               asset.searchKey?.toLowerCase().includes(statusAlert),
           ) ?? [];
@@ -236,7 +236,6 @@ export const filterMappedLocations = (
         const filteredComponents =
           location.components?.filter(
             (component: IAsset) =>
-              component.searchKey?.toLowerCase().includes(normalizedText) &&
               component.searchKey?.toLowerCase().includes(sensorEnergy) &&
               component.searchKey?.toLowerCase().includes(statusAlert),
           ) ?? [];
@@ -254,8 +253,7 @@ export const filterMappedLocations = (
       })
       .filter((location) => {
         return (
-          (location.searchKey?.toLowerCase().includes(normalizedText) &&
-            location.searchKey?.toLowerCase().includes(sensorEnergy) &&
+          (location.searchKey?.toLowerCase().includes(sensorEnergy) &&
             location.searchKey?.toLowerCase().includes(statusAlert)) ||
           location.assets.length > 0 ||
           location.components.length > 0 ||
@@ -292,4 +290,106 @@ export const filterComponentsByTypeAndStatus = (
       : true;
     return sensorFilter && statusFilter;
   });
+};
+
+export const filterMappedLocationsByText = (
+  mappedLocations: ILocation[],
+  text: string,
+): ILocation[] => {
+  const normalizedText = text.toLowerCase();
+
+  const filterLocations = (locations: ILocation[]): ILocation[] => {
+    return locations
+      .map((location) => {
+        const isLocationMatch =
+          location.name.toLowerCase().includes(normalizedText) ||
+          location.id.toLowerCase().includes(normalizedText);
+
+        const filteredNestedLocations = location.locations
+          ? filterLocations(location.locations)
+          : [];
+
+        const filteredAssets =
+          (location.assets
+            ?.map((asset) => {
+              const isAssetMatch =
+                asset.name.toLowerCase().includes(normalizedText) ||
+                asset.id.toLowerCase().includes(normalizedText);
+
+              const filteredComponents =
+                asset.components?.filter(
+                  (component) =>
+                    component.name.toLowerCase().includes(normalizedText) ||
+                    component.id.toLowerCase().includes(normalizedText),
+                ) ?? [];
+
+              if (isAssetMatch || filteredComponents.length > 0) {
+                return { ...asset, components: filteredComponents };
+              }
+
+              const filteredNestedAssets =
+                (asset.assets
+                  ?.map((nestedAsset) => {
+                    const isNestedAssetMatch =
+                      nestedAsset.name.toLowerCase().includes(normalizedText) ||
+                      nestedAsset.id.toLowerCase().includes(normalizedText);
+
+                    const nestedAssetComponents =
+                      nestedAsset.components?.filter(
+                        (component) =>
+                          component.name
+                            .toLowerCase()
+                            .includes(normalizedText) ||
+                          component.id.toLowerCase().includes(normalizedText),
+                      ) ?? [];
+
+                    if (
+                      isNestedAssetMatch ||
+                      nestedAssetComponents.length > 0
+                    ) {
+                      return {
+                        ...nestedAsset,
+                        components: nestedAssetComponents,
+                      };
+                    }
+
+                    return null;
+                  })
+                  .filter(Boolean) as IAsset[]) ?? [];
+
+              if (filteredNestedAssets.length > 0) {
+                return { ...asset, assets: filteredNestedAssets };
+              }
+
+              return null;
+            })
+            .filter(Boolean) as IAsset[]) ?? [];
+
+        const filteredComponents =
+          location.components?.filter(
+            (component) =>
+              component.name.toLowerCase().includes(normalizedText) ||
+              component.id.toLowerCase().includes(normalizedText),
+          ) ?? [];
+
+        if (
+          isLocationMatch ||
+          filteredAssets.length > 0 ||
+          filteredComponents.length > 0 ||
+          filteredNestedLocations.length > 0
+        ) {
+          return {
+            ...location,
+            assets: filteredAssets,
+            components: filteredComponents,
+            locations: filteredNestedLocations,
+          };
+        }
+
+        return null;
+      })
+      .filter(Boolean) as ILocation[];
+  };
+
+  return filterLocations(mappedLocations);
 };
