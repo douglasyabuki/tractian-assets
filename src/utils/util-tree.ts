@@ -1,45 +1,34 @@
 import { FilterOptionsType, IAsset, ILocation } from "@/interfaces/interfaces";
 
-export const filterAssetsByComponentExistence = (assets: IAsset[]): IAsset[] => {
-  return assets.filter((asset) => {
-    if (asset.components && asset.components.length > 0) {
-      return true;
-    }
-    if (asset.assets && asset.assets.length > 0) {
-      return filterAssetsByComponentExistence(asset.assets).length > 0;
-    }
-    return false;
-  });
+// Function to build a search key for any asset or location, including nested structures
+const buildSearchKey = (locationOrAsset: ILocation | IAsset): string => {
+  // Base key includes the id, name, status, and sensorType
+  let searchKey = `${locationOrAsset.id} ${locationOrAsset.name}`;
+
+  if ("status" in locationOrAsset && locationOrAsset.status) {
+    searchKey += ` ${locationOrAsset.status}`;
+  }
+
+  if ("sensorType" in locationOrAsset && locationOrAsset.sensorType) {
+    searchKey += ` ${locationOrAsset.sensorType}`;
+  }
+
+  // Build keys recursively for components, assets, and locations
+  const componentsKey =
+    locationOrAsset.components
+      ?.map((component) => buildSearchKey(component))
+      .join(" ") ?? "";
+
+  const assetsKey = locationOrAsset.assets?.map(buildSearchKey).join(" ") ?? "";
+
+  const locationsKey =
+    (locationOrAsset as ILocation).locations?.map(buildSearchKey).join(" ") ??
+    "";
+
+  return `${searchKey} ${componentsKey} ${assetsKey} ${locationsKey}`.trim();
 };
 
-export const filterComponentsByTypeAndStatus = (
-  components: IAsset[],
-  filters: FilterOptionsType,
-): IAsset[] => {
-  return components.filter((component) => {
-    const sensorFilter = filters.sensorEnergy
-      ? component.sensorType === "energy"
-      : true;
-    const statusFilter = filters.statusAlert
-      ? component.status === "alert"
-      : true;
-    return sensorFilter && statusFilter;
-  });
-};
-
-export const filterComponentsByText = (
-  components: IAsset[],
-  text: string,
-): IAsset[] => {
-  return components.filter((component) => {
-    return (
-      component.name?.toLowerCase().includes(text) ||
-      component.id?.toLowerCase().includes(text)
-    );
-  });
-};
-
-// Function to map assets and components within an asset
+// Recursive function to map assets
 const mapAsset = (
   asset: IAsset,
   componentsLinkedToAsset: IAsset[],
@@ -49,28 +38,44 @@ const mapAsset = (
   if (visitedAssets.has(asset.id)) return null;
   visitedAssets.add(asset.id);
 
+  const components = componentsLinkedToAsset.filter(
+    (component) => component.parentId === asset.id,
+  );
+  const nestedAssets = assetsLinkedToAssets.filter(
+    (nestedAsset) => nestedAsset.parentId === asset.id,
+  );
+
+  const mappedComponents = components.map((component) => ({
+    ...component,
+    searchKey: buildSearchKey(component),
+  }));
+
+  const mappedAssets = nestedAssets
+    .map((nestedAsset) =>
+      mapAsset(
+        nestedAsset,
+        componentsLinkedToAsset,
+        assetsLinkedToAssets,
+        visitedAssets,
+      ),
+    )
+    .filter(Boolean) as IAsset[];
+
+  const combinedSearchKey = buildSearchKey({
+    ...asset,
+    components: mappedComponents,
+    assets: mappedAssets,
+  });
+
   return {
     ...asset,
-    // Components linked to this asset
-    components: componentsLinkedToAsset.filter(
-      (component) => component.parentId === asset.id,
-    ),
-    // Sub-assets linked to this asset
-    assets: assetsLinkedToAssets
-      .filter((assetLinkedToAsset) => assetLinkedToAsset.parentId === asset.id)
-      .map((subAsset) =>
-        mapAsset(
-          subAsset,
-          componentsLinkedToAsset, // Ensure components linked to sub-assets
-          assetsLinkedToAssets,
-          visitedAssets,
-        ),
-      )
-      .filter(Boolean) as IAsset[], // Make sure we filter out nulls
+    searchKey: combinedSearchKey,
+    components: mappedComponents,
+    assets: mappedAssets,
   };
 };
 
-// Function to map sub-locations, assets, and components within a location
+// Recursive function to map sub-locations
 const mapSubLocation = (
   subLocation: ILocation,
   componentsLinkedToLocation: IAsset[],
@@ -84,46 +89,65 @@ const mapSubLocation = (
   if (visitedLocations.has(subLocation.id)) return null;
   visitedLocations.add(subLocation.id);
 
+  const components = componentsLinkedToLocation.filter(
+    (component) => component.locationId === subLocation.id,
+  );
+  const linkedAssets = assetsLinkedToLocations.filter(
+    (asset) => asset.locationId === subLocation.id,
+  );
+  const nestedLocations = remainingLocations.filter(
+    (remainingLocation) => remainingLocation.parentId === subLocation.id,
+  );
+
+  const mappedComponents = components.map((component) => ({
+    ...component,
+    searchKey: buildSearchKey(component),
+  }));
+
+  const mappedAssets = linkedAssets
+    .map((linkedAsset) =>
+      mapAsset(
+        linkedAsset,
+        componentsLinkedToAsset,
+        assetsLinkedToAssets,
+        visitedAssets,
+      ),
+    )
+    .filter(Boolean) as IAsset[];
+
+  const mappedLocations = nestedLocations
+    .map((nestedLocation) =>
+      mapSubLocation(
+        nestedLocation,
+        componentsLinkedToLocation,
+        assetsLinkedToLocations,
+        remainingLocations,
+        componentsLinkedToAsset,
+        assetsLinkedToAssets,
+        visitedLocations,
+        visitedAssets,
+      ),
+    )
+    .filter(Boolean) as ILocation[];
+
+  // Build search key including components, assets, and nested locations
+  const combinedSearchKey = buildSearchKey({
+    ...subLocation,
+    components: mappedComponents,
+    assets: mappedAssets,
+    locations: mappedLocations,
+  });
+
   return {
     ...subLocation,
-    // Components linked to this location
-    components: componentsLinkedToLocation.filter(
-      (component) => component.locationId === subLocation.id,
-    ),
-    // Assets linked to this location
-    assets: assetsLinkedToLocations
-      .filter((asset) => asset.locationId === subLocation.id)
-      .map((subLocationAsset) =>
-        mapAsset(
-          subLocationAsset,
-          componentsLinkedToAsset, // Components linked to this asset
-          assetsLinkedToAssets,
-          visitedAssets,
-        ),
-      )
-      .filter(Boolean) as IAsset[], // Ensure type consistency
-    // Sub-locations within this location
-    locations: remainingLocations
-      .filter(
-        (remainingLocation) => remainingLocation.parentId === subLocation.id,
-      )
-      .map((nestedLocation) =>
-        mapSubLocation(
-          nestedLocation,
-          componentsLinkedToLocation,
-          assetsLinkedToLocations,
-          remainingLocations,
-          componentsLinkedToAsset,
-          assetsLinkedToAssets,
-          visitedLocations,
-          visitedAssets,
-        ),
-      )
-      .filter(Boolean) as ILocation[], // Ensure type consistency
+    searchKey: combinedSearchKey,
+    components: mappedComponents,
+    assets: mappedAssets,
+    locations: mappedLocations,
   };
 };
 
-// Function to map locations, assets, and components
+// Main function to map locations, assets, and components with search keys
 export const mapLocations = (
   locations: ILocation[],
   assets: IAsset[],
@@ -147,26 +171,8 @@ export const mapLocations = (
   const visitedLocations = new Set<string>();
   const visitedAssets = new Set<string>();
 
-  return mainLocations.map((mainLocation) => ({
-    ...mainLocation,
-    // Components linked to this main location
-    components: componentsLinkedToLocation.filter(
-      (component) => component.locationId === mainLocation.id,
-    ),
-    // Assets linked to this main location
-    assets: assetsLinkedToLocations
-      .filter((asset) => asset.locationId === mainLocation.id)
-      .map((mainLocationAsset) =>
-        mapAsset(
-          mainLocationAsset,
-          componentsLinkedToAsset, // Ensure components linked to this asset
-          assetsLinkedToAssets,
-          visitedAssets,
-        ),
-      )
-      .filter(Boolean) as IAsset[], // Ensure type consistency
-    // Sub-locations within this main location
-    locations: remainingLocations
+  return mainLocations.map((mainLocation) => {
+    const subLocations = remainingLocations
       .filter(
         (remainingLocation) => remainingLocation.parentId === mainLocation.id,
       )
@@ -182,53 +188,121 @@ export const mapLocations = (
           visitedAssets,
         ),
       )
-      .filter(Boolean) as ILocation[], // Ensure type consistency
-  }));
+      .filter(Boolean) as ILocation[];
+
+    const combinedSearchKey = buildSearchKey({
+      ...mainLocation,
+      locations: subLocations,
+    });
+
+    return {
+      ...mainLocation,
+      components: componentsLinkedToLocation
+        .filter((component) => component.locationId === mainLocation.id)
+        .map((component) => ({
+          ...component,
+          searchKey: buildSearchKey(component),
+        })),
+      assets: assetsLinkedToLocations
+        .filter((asset) => asset.locationId === mainLocation.id)
+        .map((mainLocationAsset) =>
+          mapAsset(
+            mainLocationAsset,
+            componentsLinkedToAsset,
+            assetsLinkedToAssets,
+            visitedAssets,
+          ),
+        )
+        .filter(Boolean) as IAsset[],
+      locations: subLocations,
+      searchKey: combinedSearchKey,
+    };
+  });
 };
 
-// Function to filter mapped locations based on search text and filters
 export const filterMappedLocations = (
   mappedLocations: ILocation[],
   filters: FilterOptionsType,
   text: string,
 ): ILocation[] => {
+  const sensorEnergy = filters.sensorEnergy ? "energy" : "";
+  const statusAlert = filters.statusAlert ? "alert" : "";
+  const normalizedText = text.toLowerCase();
+
+  // Refactor to use searchKey for filtering
   const filterLocations = (locations: ILocation[]): ILocation[] => {
     return locations
       .map((location) => {
-        console.log({ location, filters, text });
-        const filteredAssets = location?.assets?.filter((asset: IAsset) => {
-          return (
-            (filters.sensorEnergy && asset.sensorType === "energy") ||
-            (filters.statusAlert && asset.status === "alert") ||
-            asset.name.toLowerCase().includes(text.toLowerCase())
-          );
-        });
+        // Filter assets based on searchKey
+        const filteredAssets =
+          location.assets?.filter(
+            (asset: IAsset) =>
+              asset.searchKey?.toLowerCase().includes(normalizedText) &&
+              asset.searchKey?.toLowerCase().includes(sensorEnergy) &&
+              asset.searchKey?.toLowerCase().includes(statusAlert),
+          ) ?? [];
 
-        const filteredComponents = location?.components?.filter(
-          (component: IAsset) =>
-            (filters.sensorEnergy && component.sensorType === "energy") ||
-            (filters.statusAlert && component.status === "alert") ||
-            component.name.toLowerCase().includes(text.toLowerCase()),
-        );
+        // Filter components based on searchKey
+        const filteredComponents =
+          location.components?.filter(
+            (component: IAsset) =>
+              component.searchKey?.toLowerCase().includes(normalizedText) &&
+              component.searchKey?.toLowerCase().includes(sensorEnergy) &&
+              component.searchKey?.toLowerCase().includes(statusAlert),
+          ) ?? [];
 
+        // Recursively filter nested locations
+        const filteredNestedLocations = location.locations
+          ? filterLocations(location.locations)
+          : [];
+
+        // Return filtered location, assets, components, and sub-locations
         return {
           ...location,
-          assets: filteredAssets ?? [],
-          components: filteredComponents ?? [],
-          locations: location.locations
-            ? filterLocations(location.locations)
-            : [],
+          assets: filteredAssets,
+          components: filteredComponents,
+          locations: filteredNestedLocations,
         };
       })
       .filter((location) => {
+        // Only keep locations that have matching assets, components, or nested locations
         return (
+          (location.searchKey?.toLowerCase().includes(normalizedText) &&
+            location.searchKey?.toLowerCase().includes(sensorEnergy) &&
+            location.searchKey?.toLowerCase().includes(statusAlert)) ||
           location.assets.length > 0 ||
           location.components.length > 0 ||
-          location.locations.length > 0 ||
-          location.name.toLowerCase().includes(text.toLowerCase())
+          location.locations.length > 0
         );
       });
   };
 
   return filterLocations(mappedLocations);
+};
+
+export const filterComponentsByText = (
+  components: IAsset[],
+  text: string,
+): IAsset[] => {
+  return components.filter((component) => {
+    return (
+      component.name?.toLowerCase().includes(text) ||
+      component.id?.toLowerCase().includes(text)
+    );
+  });
+};
+
+export const filterComponentsByTypeAndStatus = (
+  components: IAsset[],
+  filters: FilterOptionsType,
+): IAsset[] => {
+  return components.filter((component) => {
+    const sensorFilter = filters.sensorEnergy
+      ? component.sensorType === "energy"
+      : true;
+    const statusFilter = filters.statusAlert
+      ? component.status === "alert"
+      : true;
+    return sensorFilter && statusFilter;
+  });
 };

@@ -18,6 +18,7 @@ export interface ILocation {
   locations?: ILocation[];
   assets?: IAsset[];
   components?: IAsset[];
+  searchKey?: string;
 }
 
 export interface IAsset {
@@ -31,6 +32,7 @@ export interface IAsset {
   gatewayId?: string;
   assets?: IAsset[];
   components?: IAsset[];
+  searchKey?: string;
 }
 
 export interface ITreeNode {
@@ -42,6 +44,14 @@ export interface ITreeNode {
   children?: ITreeNode[];
 }
 
-export interface IAssetTree {
-  root: ITreeNode;
+export interface IFilterOptions {
+  searchQuery?: string;
+  filterBySensorType?: SensorType;
+  filterByCriticalStatus?: boolean;
+}
+
+export interface IAssetPageData {
+  locations: ILocation[];
+  assets: IAsset[];
+  filters: IFilterOptions;
 }

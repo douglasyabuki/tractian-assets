@@ -38,6 +38,10 @@ export const SearchableViewTree = ({
     [assets],
   );
 
+  const mappedLocations = useMemo(() => {
+    return mapLocations(locations, assetsAndSubAssets, filteredComponents);
+  }, [locations, assetsAndSubAssets, filteredComponents]);
+
   const unlinkedAssets = useMemo(
     () =>
       assetsAndSubAssets.filter(
@@ -54,16 +58,13 @@ export const SearchableViewTree = ({
     [filteredComponents],
   );
 
-  const mappedLocations = useMemo(() => {
-    return mapLocations(locations, assetsAndSubAssets, filteredComponents);
-  }, [locations, assetsAndSubAssets, filteredComponents]);
-
   const filteredMappedLocations = useMemo(() => {
-    return filters.sensorEnergy || filters.statusAlert ?  filterMappedLocations(mappedLocations, filters, debouncedText) : mappedLocations
+    return filters.sensorEnergy || filters.statusAlert
+      ? filterMappedLocations(mappedLocations, filters, debouncedText)
+      : mappedLocations;
   }, [mappedLocations, filters, debouncedText]);
 
   const filteredUnlinkedAssets = useMemo(() => {
-    // there still can be an unlinked asset with subassets or components
     return filters.sensorEnergy || filters.statusAlert ? [] : unlinkedAssets;
   }, [unlinkedAssets, filters]);
 
