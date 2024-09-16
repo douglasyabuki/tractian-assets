@@ -1,6 +1,10 @@
 {
     "rewrites": [
       {
+        "source": "/api/:match*",
+        "destination": "https://fake-api.tractian.com/:match*"
+      },
+      {
         "source": "/(.*)",
         "destination": "/index.html"
       }
