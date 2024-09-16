@@ -13,8 +13,8 @@ export const ViewTree = ({
   unlinkedComponents = [],
 }: ViewTreeProps) => {
   return (
-    <aside className="flex flex-col overflow-y-scroll">
-      <div className="flex min-h-fit flex-col">
+    <aside className="flex max-h-[calc(100vh-12.5rem)] flex-col overflow-y-auto">
+      <div className="flex max-h-max flex-col">
         {locations?.length > 0 &&
           locations.map((mappedLocation) => (
             <TreeNode

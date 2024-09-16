@@ -21,7 +21,7 @@ export const ComponentViewer = ({ component }: ComponentViewerProps) => {
         </>
       ) : (
         <>
-          <div className="mx-auto my-auto flex flex-col items-center justify-center gap-8 opacity-75">
+          <div className="mx-auto my-auto flex flex-col items-center justify-center gap-8 opacity-75 text-center">
             <h2 className="text-xl">No component selected</h2>
             <Icons.COMPONENT className="size-20" />
           </div>
