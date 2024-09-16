@@ -17,6 +17,15 @@
 
 ### :tv: Preview
 
+- Apex Unit
+  ![](https://github.com/douglasyabuki/tractian-assets/blob/master/public/apex_unit_desktop.gif)
+- Jaguar Unit
+  ![](https://github.com/douglasyabuki/tractian-assets/blob/master/public/jaguar_unit_desktop.gif)
+- Tobias Unit
+  ![](https://github.com/douglasyabuki/tractian-assets/blob/master/public/tobias_unit_desktop.gif)
+- Image Uploading
+  ![](https://github.com/douglasyabuki/tractian-assets/blob/master/public/uploading_desktop.gif)
+
 ### :black_nib: Improving points
 
 While the current implementation meets the core requirements, there are several areas where performance, scalability, and user experience could be further improved:
