@@ -1,8 +1,6 @@
 import { FilterOptionsType, IAsset, ILocation } from "@/interfaces/interfaces";
 
-// Function to build a search key for any asset or location, including nested structures
 const buildSearchKey = (locationOrAsset: ILocation | IAsset): string => {
-  // Base key includes the id, name, status, and sensorType
   let searchKey = `${locationOrAsset.id} ${locationOrAsset.name}`;
 
   if ("status" in locationOrAsset && locationOrAsset.status) {
@@ -13,7 +11,6 @@ const buildSearchKey = (locationOrAsset: ILocation | IAsset): string => {
     searchKey += ` ${locationOrAsset.sensorType}`;
   }
 
-  // Build keys recursively for components, assets, and locations
   const componentsKey =
     locationOrAsset.components
       ?.map((component) => buildSearchKey(component))
@@ -28,7 +25,6 @@ const buildSearchKey = (locationOrAsset: ILocation | IAsset): string => {
   return `${searchKey} ${componentsKey} ${assetsKey} ${locationsKey}`.trim();
 };
 
-// Recursive function to map assets
 const mapAsset = (
   asset: IAsset,
   componentsLinkedToAsset: IAsset[],
@@ -75,7 +71,6 @@ const mapAsset = (
   };
 };
 
-// Recursive function to map sub-locations
 const mapSubLocation = (
   subLocation: ILocation,
   componentsLinkedToLocation: IAsset[],
@@ -130,7 +125,6 @@ const mapSubLocation = (
     )
     .filter(Boolean) as ILocation[];
 
-  // Build search key including components, assets, and nested locations
   const combinedSearchKey = buildSearchKey({
     ...subLocation,
     components: mappedComponents,
@@ -147,7 +141,6 @@ const mapSubLocation = (
   };
 };
 
-// Main function to map locations, assets, and components with search keys
 export const mapLocations = (
   locations: ILocation[],
   assets: IAsset[],
@@ -229,11 +222,9 @@ export const filterMappedLocations = (
   const statusAlert = filters.statusAlert ? "alert" : "";
   const normalizedText = text.toLowerCase();
 
-  // Refactor to use searchKey for filtering
   const filterLocations = (locations: ILocation[]): ILocation[] => {
     return locations
       .map((location) => {
-        // Filter assets based on searchKey
         const filteredAssets =
           location.assets?.filter(
             (asset: IAsset) =>
@@ -242,7 +233,6 @@ export const filterMappedLocations = (
               asset.searchKey?.toLowerCase().includes(statusAlert),
           ) ?? [];
 
-        // Filter components based on searchKey
         const filteredComponents =
           location.components?.filter(
             (component: IAsset) =>
@@ -251,12 +241,10 @@ export const filterMappedLocations = (
               component.searchKey?.toLowerCase().includes(statusAlert),
           ) ?? [];
 
-        // Recursively filter nested locations
         const filteredNestedLocations = location.locations
           ? filterLocations(location.locations)
           : [];
 
-        // Return filtered location, assets, components, and sub-locations
         return {
           ...location,
           assets: filteredAssets,
@@ -265,7 +253,6 @@ export const filterMappedLocations = (
         };
       })
       .filter((location) => {
-        // Only keep locations that have matching assets, components, or nested locations
         return (
           (location.searchKey?.toLowerCase().includes(normalizedText) &&
             location.searchKey?.toLowerCase().includes(sensorEnergy) &&

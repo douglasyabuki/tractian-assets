@@ -65,8 +65,8 @@ export const AssetsContainer = ({ selectedCompany }: AssetsContainer) => {
           <ToggleButton
             onClick={() => {
               setFilters((prev) => ({
+                ...prev,
                 sensorEnergy: !prev.sensorEnergy,
-                statusAlert: false,
               }));
             }}
             isToggled={!!filters.sensorEnergy}
@@ -77,7 +77,7 @@ export const AssetsContainer = ({ selectedCompany }: AssetsContainer) => {
           <ToggleButton
             onClick={() => {
               setFilters((prev) => ({
-                sensorEnergy: false,
+                ...prev,
                 statusAlert: !prev.statusAlert,
               }));
             }}
