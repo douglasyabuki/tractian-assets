@@ -10,7 +10,7 @@ export const Component = ({ ...props }: IAsset) => {
 
   return (
     <button
-      className="flex w-auto items-center justify-between gap-2 pl-3 text-sm uppercase cursor-pointer"
+      className="flex w-auto cursor-pointer items-center justify-between gap-2 pl-3 text-sm uppercase"
       onClick={() => onComponentSelect(props)}
     >
       <div className="flex w-full items-center justify-start gap-2">

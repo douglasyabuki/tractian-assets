@@ -1,7 +1,4 @@
-export const readImageFile = (
-  file: File,
-  fn: (base64: string) => void,
-) => {
+export const readImageFile = (file: File, fn: (base64: string) => void) => {
   if (file && file.type.startsWith("image/")) {
     const reader = new FileReader();
     reader.onloadend = () => {

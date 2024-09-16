@@ -7,11 +7,7 @@ interface ImagePreviewProps {
   onRemove: () => void;
 }
 
-export const ImagePreview = ({
-  src,
-  alt,
-  onRemove,
-}: ImagePreviewProps) => {
+export const ImagePreview = ({ src, alt, onRemove }: ImagePreviewProps) => {
   return (
     <>
       <img

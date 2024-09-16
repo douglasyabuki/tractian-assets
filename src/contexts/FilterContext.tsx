@@ -1,4 +1,4 @@
-import { FilterOptionsType } from "@/interfaces/interfaces"; // Assuming FilterOptionsType is defined here
+import { FilterOptionsType } from "@/interfaces/interfaces";
 import { createContext, useState } from "react";
 
 interface FilterContextProps {

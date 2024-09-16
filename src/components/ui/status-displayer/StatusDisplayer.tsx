@@ -45,9 +45,17 @@ export const StatusDisplayer = ({
         ref={componentRef}
       >
         {sensorType === "energy" ? (
-          <ElectricalStatusDisplayer className={twMerge(className)} status={status} size={size}/>
+          <ElectricalStatusDisplayer
+            className={twMerge(className)}
+            status={status}
+            size={size}
+          />
         ) : (
-          <MechanicalStatusDisplayer className={twMerge(className)} status={status} size={size}/>
+          <MechanicalStatusDisplayer
+            className={twMerge(className)}
+            status={status}
+            size={size}
+          />
         )}
       </div>
       {targetRect && (
