@@ -35,7 +35,7 @@ export const TreeNode = ({ node, nodeType }: TreeNodeProps) => {
   }, 500);
 
   return (
-    <div className="flex w-full cursor-default flex-col items-start justify-start gap-1 space-x-[0.525rem] border-l-white/5 pl-3 pt-[1.125rem]">
+    <div className="flex w-full cursor-default flex-col items-start justify-start gap-1 space-x-1 border-l-white/5 pl-2 pt-[1.125rem] md:space-x-[0.525rem] md:pl-3">
       {nodeType === "component" ? (
         <Component {...node} />
       ) : (

@@ -10,7 +10,7 @@ export const Navbar = () => {
   return (
     <div className="box-border flex h-14 w-screen items-center justify-between bg-slate-800 px-4 py-3 text-sm sm:px-6 md:px-8">
       <Icons.LOGO />
-      <div className="flex w-fit justify-end gap-4">
+      <div className="flex w-fit justify-end gap-2 md:gap-4">
         {companies?.length > 0 &&
           companies
             .sort((a, b) => (a.name > b.name ? 1 : a.name === b.name ? 0 : -1))
@@ -19,11 +19,13 @@ export const Navbar = () => {
                 id={company.id}
                 key={company.id}
                 size="small"
+                className="shrink min-w-14 w-auto"
                 isToggled={selectedCompany?.id === company.id}
                 onClick={() => onCompanySelect(company)}
               >
-                <Icons.UNIT />
-                {company.name} {"Unit"}
+                <Icons.UNIT className="hidden md:flex"/>
+                {company.name} 
+                <p className="hidden md:flex">{"Unit"}</p>
               </ToggleButton>
             ))}
       </div>

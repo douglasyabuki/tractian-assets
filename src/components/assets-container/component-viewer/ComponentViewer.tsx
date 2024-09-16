@@ -9,7 +9,7 @@ interface ComponentViewerProps {
 
 export const ComponentViewer = ({ component }: ComponentViewerProps) => {
   return (
-    <div className="flex w-auto flex-auto flex-col border-[1.5px] border-slate-600 bg-slate-800/90 text-slate-200">
+    <div className="flex w-full flex-auto flex-col border-[1.5px] border-slate-600 bg-slate-800/90 px-4 text-slate-200 md:w-auto md:px-0">
       {component ? (
         <>
           <ViewerHeader

@@ -82,7 +82,7 @@ export const SearchableViewTree = ({
   );
 
   return (
-    <aside className="box-border flex w-[30rem] flex-col divide-y-[1px] divide-slate-600 border-[1.5px] border-slate-600 bg-slate-800/90">
+    <aside className="h-full md:h-auto box-border flex w-full md:w-[30rem] flex-col divide-y-[1px] divide-slate-600 border-[1.5px] border-slate-600 bg-slate-800/90">
       <SearchBar
         value={text}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>

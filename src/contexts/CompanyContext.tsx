@@ -8,6 +8,7 @@ interface CompanyContextProps {
   onComponentSelect: (component: IAsset) => void;
   selectedCompany: ICompany | null;
   selectedComponent: IAsset | null;
+  onComponentClear: () => void;
 }
 
 export const CompanyContext = createContext<CompanyContextProps>({
@@ -16,6 +17,7 @@ export const CompanyContext = createContext<CompanyContextProps>({
   onComponentSelect: () => {},
   selectedCompany: null,
   selectedComponent: null,
+  onComponentClear: () => {},
 });
 
 export const CompanyProvider = ({
@@ -33,15 +35,6 @@ export const CompanyProvider = ({
     Error
   >();
 
-  const onCompanySelect = (company: ICompany) => {
-    setSelectedComponent(null);
-    setSelectedCompany(company);
-  };
-
-  const onComponentSelect = (component: IAsset) => {
-    setSelectedComponent(component);
-  };
-
   useEffect(() => {
     getCompanies(`/api/companies`, {
       method: "GET",
@@ -56,6 +49,19 @@ export const CompanyProvider = ({
     });
   }, [getCompanies]);
 
+  const onCompanySelect = (company: ICompany) => {
+    setSelectedComponent(null);
+    setSelectedCompany(company);
+  };
+
+  const onComponentSelect = (component: IAsset) => {
+    setSelectedComponent(component);
+  };
+
+  const onComponentClear = () => {
+    setSelectedComponent(null);
+  };
+
   return (
     <CompanyContext.Provider
       value={{
@@ -64,6 +70,7 @@ export const CompanyProvider = ({
         onCompanySelect,
         selectedComponent,
         onComponentSelect,
+        onComponentClear,
       }}
     >
       {children}

@@ -49,36 +49,40 @@ export const AssetsContainer = ({ selectedCompany }: AssetsContainer) => {
   }, [selectedCompany, getLocations, getAssets]);
 
   return (
-    <div className="box-border flex h-auto min-h-full w-auto min-w-full flex-1 flex-col gap-[0.625rem] bg-slate-800 px-4 py-[1.125rem]">
+    <div className="box-border flex h-auto min-h-full w-auto min-w-full max-w-full flex-1 flex-col gap-[0.625rem] bg-slate-800 px-4 py-[1.125rem]">
       <div className="flex h-fit w-full items-center justify-between">
         <div className="flex items-center gap-2">
-          <h2 className="text-xl font-semibold leading-7">Ativos</h2>
-          <p className="text-sm leading-5">{`/ ${selectedCompany?.name} Unit`}</p>
+          <h2 className="text-lg font-semibold leading-7 md:text-xl">Ativos</h2>
+          <p className="text-xs leading-5 md:text-sm">{`/ ${selectedCompany?.name} Unit`}</p>
         </div>
         <div className="flex items-center justify-end gap-2">
           <ToggleButton
             onClick={() => toggleFilter("sensorEnergy")}
             isToggled={!!filters.sensorEnergy}
+            className="rounded-full p-0 max-md:size-8"
           >
-            <Icons.ENERGY />
-            Energy sensor
+            <Icons.ENERGY className="" />
+            <p className="hidden md:flex">Energy sensor</p>
           </ToggleButton>
           <ToggleButton
             onClick={() => toggleFilter("statusAlert")}
             isToggled={!!filters.statusAlert}
+            className="rounded-full p-0 max-md:size-8"
           >
             <Icons.WARNING />
-            Critical
+            <p className="hidden md:flex">Critical</p>
           </ToggleButton>
         </div>
       </div>
-      <div className="grid h-[100%] w-full grid-cols-[30rem_auto] gap-2">
+      <div className="flex h-[100%] w-full flex-col gap-2 md:grid md:grid-cols-[30rem_auto]">
         <SearchableViewTree
           assets={assets || []}
           locations={locations || []}
           filters={filters}
         />
-        <ComponentViewer component={selectedComponent} />
+        <div className="hidden w-auto md:flex md:flex-auto">
+          <ComponentViewer component={selectedComponent} />
+        </div>
       </div>
     </div>
   );
