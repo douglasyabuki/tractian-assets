@@ -1,13 +1,9 @@
 import { CompanyContext } from "@/contexts/CompanyContext";
+import { FilterContext } from "@/contexts/FilterContext";
 import { useRequest } from "@/hooks/use-request";
 import { Icons } from "@/icons/Icons";
-import {
-  FilterOptionsType,
-  IAsset,
-  ICompany,
-  ILocation,
-} from "@/interfaces/interfaces";
-import { useContext, useEffect, useState } from "react";
+import { IAsset, ICompany, ILocation } from "@/interfaces/interfaces";
+import { useContext, useEffect } from "react";
 import { ToggleButton } from "../ui/buttons/toggle-button/ToggleButton";
 import { ComponentViewer } from "./component-viewer/ComponentViewer";
 import { SearchableViewTree } from "./searchable-view-tree/SearchableViewTree";
@@ -17,10 +13,8 @@ type AssetsContainer = {
 };
 
 export const AssetsContainer = ({ selectedCompany }: AssetsContainer) => {
-  const [filters, setFilters] = useState<FilterOptionsType>({
-    sensorEnergy: false,
-    statusAlert: false,
-  });
+  const { filters, toggleFilter } = useContext(FilterContext);
+
   const { selectedComponent } = useContext(CompanyContext);
   const { data: locations, sendRequest: getLocations } = useRequest<
     ILocation[],
@@ -63,24 +57,14 @@ export const AssetsContainer = ({ selectedCompany }: AssetsContainer) => {
         </div>
         <div className="flex items-center justify-end gap-2">
           <ToggleButton
-            onClick={() => {
-              setFilters((prev) => ({
-                ...prev,
-                sensorEnergy: !prev.sensorEnergy,
-              }));
-            }}
+            onClick={() => toggleFilter("sensorEnergy")}
             isToggled={!!filters.sensorEnergy}
           >
             <Icons.ENERGY />
             Energy sensor
           </ToggleButton>
           <ToggleButton
-            onClick={() => {
-              setFilters((prev) => ({
-                ...prev,
-                statusAlert: !prev.statusAlert,
-              }));
-            }}
+            onClick={() => toggleFilter("statusAlert")}
             isToggled={!!filters.statusAlert}
           >
             <Icons.WARNING />

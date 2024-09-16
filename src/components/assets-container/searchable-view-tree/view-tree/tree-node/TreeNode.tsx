@@ -1,7 +1,9 @@
 import { DropdownButton } from "@/components/ui/buttons/dropdown-button/DropdownButton";
+import { FilterContext } from "@/contexts/FilterContext";
+import { useTimeout } from "@/hooks/use-timeout";
 import { Icons } from "@/icons/Icons";
 import { IAsset, ILocation, TreeNodeType } from "@/interfaces/interfaces";
-import { useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { Component } from "../component/Component";
 
 interface TreeNodeProps {
@@ -23,7 +25,14 @@ export const TreeNode = ({ node, nodeType }: TreeNodeProps) => {
       ((node as IAsset | ILocation)?.components?.length ?? 0) > 0
     );
   }, [node]);
+  const { filters } = useContext(FilterContext);
   const [isToggled, setIsToggled] = useState(false);
+
+  useTimeout(() => {
+    if (filters.sensorEnergy || (filters.statusAlert && isToggleable)) {
+      setIsToggled(true);
+    }
+  }, 500);
 
   return (
     <div className="flex w-full cursor-default flex-col items-start justify-start gap-1 space-x-[0.525rem] border-l-white/5 pl-3 pt-[1.125rem]">
