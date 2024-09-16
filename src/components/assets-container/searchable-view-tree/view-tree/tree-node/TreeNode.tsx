@@ -4,6 +4,7 @@ import { useTimeout } from "@/hooks/use-timeout";
 import { Icons } from "@/icons/Icons";
 import { IAsset, ILocation, TreeNodeType } from "@/interfaces/interfaces";
 import { useContext, useMemo, useState } from "react";
+import { BatchRenderer } from "../batch-renderer/BatchRenderer";
 import { Component } from "../component/Component";
 
 interface TreeNodeProps {
@@ -26,7 +27,7 @@ export const TreeNode = ({ node, nodeType }: TreeNodeProps) => {
     );
   }, [node]);
   const { filters } = useContext(FilterContext);
-  const [isToggled, setIsToggled] = useState(false);
+  const [isToggled, setIsToggled] = useState(isToggleable);
 
   useTimeout(() => {
     if (filters.sensorEnergy || (filters.statusAlert && isToggleable)) {
@@ -58,30 +59,43 @@ export const TreeNode = ({ node, nodeType }: TreeNodeProps) => {
 
           {isToggleable && isToggled && (
             <div className="box-border flex flex-col border-l-[1px] border-l-white/5 pl-3">
-              {((node as ILocation)?.locations?.length ?? 0) > 0 &&
-                (node as ILocation).locations?.map((location) => (
-                  <TreeNode
-                    key={location.id}
-                    node={location}
-                    nodeType="location"
-                  />
-                ))}
+              {((node as ILocation)?.locations?.length ?? 0) > 0 && (
+                <BatchRenderer
+                  items={(node as ILocation).locations!}
+                  renderItem={(location) => (
+                    <TreeNode
+                      nodeType="location"
+                      node={location}
+                      key={location.id}
+                    />
+                  )}
+                  batchSize={5}
+                />
+              )}
 
-              {node.assets &&
-                node.assets.length > 0 &&
-                node.assets.map((asset) => (
-                  <TreeNode key={asset.id} node={asset} nodeType="asset" />
-                ))}
+              {node.assets && node.assets.length > 0 && (
+                <BatchRenderer
+                  items={node.assets}
+                  renderItem={(asset) => (
+                    <TreeNode nodeType="asset" node={asset} key={asset.id} />
+                  )}
+                  batchSize={10}
+                />
+              )}
 
-              {node.components &&
-                node.components.length > 0 &&
-                node.components.map((component) => (
-                  <TreeNode
-                    key={component.id}
-                    node={component}
-                    nodeType="component"
-                  />
-                ))}
+              {node.components && node.components.length > 0 && (
+                <BatchRenderer
+                  items={node.components}
+                  renderItem={(component) => (
+                    <TreeNode
+                      nodeType="component"
+                      node={component}
+                      key={component.id}
+                    />
+                  )}
+                  batchSize={10}
+                />
+              )}
             </div>
           )}
         </>
