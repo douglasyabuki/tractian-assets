@@ -20,24 +20,11 @@ interface UseRequestReturn<TData, TError, TBody, TParams> {
   abortRequest: () => void;
 }
 
-const formatParams = (params: Record<string, any> | undefined): string => {
-  if (!params) return "";
-  return (
-    "?" +
-    Object.entries(params)
-      .map(
-        ([key, value]) =>
-          `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
-      )
-      .join("&")
-  );
-};
-
 export const useRequest = <
   TData = unknown,
   TError = unknown,
   TBody = unknown,
-  TParams = unknown,
+  TParams = Record<string, string>,
 >(): UseRequestReturn<TData, TError, TBody, TParams> => {
   const [data, setData] = useState<TData | null>(null);
   const [error, setError] = useState<TError | null>(null);
@@ -54,7 +41,6 @@ export const useRequest = <
       }
       const abortController = new AbortController();
       abortControllerRef.current = abortController;
-      const queryString = formatParams(options?.params ? options.params : {});
 
       const fetchOptions: RequestInit = {
         method: options?.method || "GET",
@@ -67,7 +53,12 @@ export const useRequest = <
       if (options?.body) {
         fetchOptions.body = JSON.stringify(options.body);
       }
-      fetch(url + queryString, fetchOptions)
+      fetch(
+        url +
+          "?" +
+          new URLSearchParams(options?.params ? options.params : {}).toString(),
+        fetchOptions,
+      )
         .then((response) => {
           if (!response.ok) {
             return response.json().then((errorData) => {

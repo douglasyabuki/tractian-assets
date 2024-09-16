@@ -8,11 +8,11 @@ import { ToggleButton } from "../ui/buttons/toggle-button/ToggleButton";
 import { ComponentViewer } from "./component-viewer/ComponentViewer";
 import { SearchableViewTree } from "./searchable-view-tree/SearchableViewTree";
 
-type AssetsContainer = {
+interface AssetsContainerProps {
   selectedCompany: ICompany;
 };
 
-export const AssetsContainer = ({ selectedCompany }: AssetsContainer) => {
+export const AssetsContainer = ({ selectedCompany }: AssetsContainerProps) => {
   const { filters, toggleFilter } = useContext(FilterContext);
 
   const { selectedComponent } = useContext(CompanyContext);

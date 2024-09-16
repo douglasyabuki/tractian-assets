@@ -1,4 +1,3 @@
-// hooks/useDragAndDrop.ts
 import { useState } from "react";
 
 export const useDragAndDrop = (onFileDrop: (file: File) => void) => {

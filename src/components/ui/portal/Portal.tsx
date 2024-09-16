@@ -1,7 +1,7 @@
 import { createPortal } from "react-dom";
 import { twMerge } from "tailwind-merge";
 
-export type ScreenPosition =
+type ScreenPosition =
   | "top"
   | "top_right"
   | "right"
@@ -12,7 +12,7 @@ export type ScreenPosition =
   | "top_left"
   | "center";
 
-type Portal = {
+interface PortalProps {
   className?: string;
   isToggled: boolean;
   onClose: () => void;
@@ -21,7 +21,7 @@ type Portal = {
   backdrop?: boolean;
 };
 
-const childrenPosition: Record<ScreenPosition | string, string> = {
+const CHILDREN_POSITION_DICTIONARY: Record<ScreenPosition | string, string> = {
   top: "items-start justify-center",
   top_right: "items-start justify-end",
   right: "items-center justify-end",
@@ -40,7 +40,7 @@ export const Portal = ({
   children,
   positionOnScreen = "center",
   backdrop = false,
-}: Portal) => {
+}: PortalProps) => {
   return (
     <>
       {isToggled &&
@@ -49,7 +49,7 @@ export const Portal = ({
             className={twMerge(
               "min-w-screen absolute bottom-0 left-0 right-0 top-0 z-[52] flex min-h-screen transition-all duration-200 ease-in",
               backdrop && "backdrop-blur-sm",
-              childrenPosition[positionOnScreen],
+              CHILDREN_POSITION_DICTIONARY[positionOnScreen],
               className,
             )}
             onClick={onClose}

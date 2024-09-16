@@ -8,9 +8,8 @@ const isLocalStorageAvailable = () => {
     localStorage.removeItem(testKey);
     return true;
   } catch (err) {
-    if (err) {
-      return false;
-    }
+    console.error("Local storage unavailable", err);
+    return false;
   }
 };
 

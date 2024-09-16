@@ -1,6 +1,6 @@
-export const safeStringify = (value: object | null): string => {
+export const safeStringify = (value: Record<string, unknown>): string => {
   const seen = new WeakSet();
-  return JSON.stringify(value, (key, val) => {
+  return JSON.stringify(value, (_key, val) => {
     if (typeof val === "object" && val !== null) {
       if (seen.has(val)) {
         return;
