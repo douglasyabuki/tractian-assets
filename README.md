@@ -22,7 +22,7 @@
 While the current implementation meets the core requirements, there are several areas where performance, scalability, and user experience could be further improved:
 
 - Batch Rendering Optimization
-  > - Current Approach: The tree renders uses a batch renderer to load 10 TreeNodes every 500ms. Although it helps, the recursiveness of the TreeNode component causes each child node to trigger another batch renderer, which may lead to performance issues, especially with large datasets containing multiple nested assets, locations, and components.
+  > - Current Approach: The tree renders uses a batch renderer to load N TreeNodes every X seconds. Although it helps, the recursiveness of the TreeNode component causes each child node to trigger another batch renderer, which may lead to performance issues, especially with large datasets containing multiple nested assets, locations, and components.
   > - Improvement: Implement a dynamical batch rendering mechanism based on the Root Nodes size to its furthest branch, deciding for itself the chunk size and delay. This will reduce the initial load time, leading to a better performance and user experience.
 - Enhanced Search Logic
   > - Current Approach: The current search filters components, assets, and locations based on the user’s input, but it could be more optimized for performance and flexibility.
